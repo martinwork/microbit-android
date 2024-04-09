@@ -39,6 +39,7 @@ import static android.content.ContentValues.TAG;
  */
 
 public class MakeCodeWebView extends Activity implements View.OnClickListener {
+    private static final String TAG = MakeCodeWebView.class.getSimpleName();
 
     private WebView webView;
     public static String makecodeUrl = "https://makecode.microbit.org/?androidapp=" + BuildConfig.VERSION_CODE;
@@ -94,7 +95,9 @@ public class MakeCodeWebView extends Activity implements View.OnClickListener {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 Log.v(TAG, "url: " + url);
-                if (url.contains("https://microbit.org/")) activityHandle.finish();
+                if (url.contains("https://microbit.org/")) {
+                    activityHandle.finish();
+                }
                 return false;
             }
 
@@ -108,6 +111,14 @@ public class MakeCodeWebView extends Activity implements View.OnClickListener {
             public void onPageFinished (WebView view, String url) {
                 super.onPageFinished(view, url);
                 Log.v(TAG, "onPageFinished(" + url + ");");
+                // update makecodeUrl for home/editor transitions
+                String r0 = makecodeUrl.replaceFirst("#editor", "");
+                r0 = r0.replaceFirst("#", "");
+                String r1 = url.replaceFirst("#editor", "");
+                r1 = r1.replaceFirst("#", "");
+                if ( r0.equals( r1)) {
+                    makecodeUrl = url;
+                }
                 onPageFinishedJS( view, url);
             }
         }); //setWebViewClient
@@ -292,10 +303,12 @@ public class MakeCodeWebView extends Activity implements View.OnClickListener {
 
     @Override
     public void onBackPressed() {
-        if(webView.canGoBack()) {
-            webView.goBack();
-        } else {
+        if ( webView.getUrl().equals( makecodeUrl)) {
+            Log.d(TAG, "onBackPressed calling super.onBackPressed()");
             super.onBackPressed();
+        } else {
+            Log.d(TAG, "onBackPressed loading makecodeUrl");
+            webView.loadUrl( makecodeUrl);
         }
     }
 

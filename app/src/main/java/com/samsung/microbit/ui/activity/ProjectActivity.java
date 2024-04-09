@@ -220,7 +220,6 @@ public class ProjectActivity extends Activity implements View.OnClickListener, B
                 intent.putExtra("import", true);
             }
             startActivity(intent);
-            finish();
         }
     }
 
